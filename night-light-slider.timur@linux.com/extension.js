@@ -1,4 +1,4 @@
-/* global imports */
+/* global imports log */
 
 const St = imports.gi.St
 const Gio = imports.gi.Gio
@@ -8,11 +8,39 @@ const Slider = imports.ui.slider
 const PanelMenu = imports.ui.panelMenu
 const PopupMenu = imports.ui.popupMenu
 
+const BUS_NAME = 'org.gnome.SettingsDaemon.Color'
+const OBJECT_PATH = '/org/gnome/SettingsDaemon/Color'
+
+/* eslint-disable */
+const ColorInterface = '<node> \
+<interface name="org.gnome.SettingsDaemon.Color"> \
+  <property name="Temperature" type="u" access="readwrite"/> \
+</interface> \
+</node>'
+/* eslint-enable */
+
+const ColorProxy = Gio.DBusProxy.makeProxyWrapper(ColorInterface)
+
 const SliderMenuItem = new Lang.Class({
   Name: 'SliderMenuItem',
-  Extends: PopupMenu.PopupBaseMenuItem,
+  Extends: PanelMenu.SystemIndicator,
+
   _init: function () {
-    this.parent({ reactive: false })
+    this.parent('night-light-symbolic')
+    this._proxy = new ColorProxy(Gio.DBus.session, BUS_NAME, OBJECT_PATH,
+      (proxy, error) => {
+        if (error) {
+          log(error.message)
+          return
+        }
+        this._proxy.connect('g-properties-changed',
+          Lang.bind(this, this._sync))
+        this._sync()
+      })
+
+    this._item = new PopupMenu.PopupBaseMenuItem({ activate: false })
+    this.menu.addMenuItem(this._item)
+
     this._slider = new Slider.Slider(0)
     this._slider.connect('value-changed', Lang.bind(this, this._sliderChanged))
     this._slider.actor.accessible_name = ('Temperature')
@@ -22,73 +50,49 @@ const SliderMenuItem = new Lang.Class({
       style_class: 'popup-menu-icon'
     })
 
-    this.actor.add(icon)
-    this.actor.add(this._slider.actor, { expand: true })
-
-    this.actor.connect('button-press-event', Lang.bind(this, function (actor, event) {
+    this._item.actor.add(icon)
+    this._item.actor.add(this._slider.actor, { expand: true })
+    this._item.actor.connect('button-press-event', Lang.bind(this, function (actor, event) {
       return this._slider.startDragging(event)
     }))
 
-    this.actor.connect('key-press-event', Lang.bind(this, function (actor, event) {
+    this._item.actor.connect('key-press-event', Lang.bind(this, function (actor, event) {
       return this._slider.onKeyPressEvent(actor, event)
     }))
 
     this._schema = new Gio.Settings({
       schema: 'org.gnome.settings-daemon.plugins.color'
     })
-
-    // TODO: Update slider with current value
-    this._current = this._schema.get_uint('night-light-temperature')
   },
   _sliderChanged: function (slider, value) {
     const MAX = 10000
     const MIN = 1000
     const temperature = (value * (MAX - MIN)) + MIN
-    this._setValue(parseInt(temperature))
+    this._proxy.Temperature = parseInt(temperature)
   },
-  _setValue: function _setValue (value) {
-    this._schema.set_uint('night-light-temperature', value)
-    this._current = value
-  }
-})
-
-const NightLightSlider = new Lang.Class({
-  Name: 'NightLightSlider',
-  Extends: PanelMenu.Button,
-
-  _init: function () {
-    this.parent(null, 'NightLightSlider')
-
-    this.icon = new St.Icon({
-      icon_name: 'night-light-symbolic',
-      style_class: 'system-status-icon'
-    })
-
-    this.actor.add_actor(this.icon)
-
-    // Add slider menu
-    this._menuItem = new SliderMenuItem()
-    this.menu.addMenuItem(this._menuItem)
+  _sync: function () {
+    const value = this._proxy.Temperature / 10000.0
+    this._slider.setValue(value)
   }
 })
 
 function Extension () {
-  const uuid = 'timur-kiyui-night-light-slider'
+  let indicator = null
 
   this.enable = function enable () {
-    const indicator = new NightLightSlider()
-    Main.panel.addToStatusArea(uuid, indicator)
-    Main.panel.statusArea[uuid].icon.icon_name = 'night-light-symbolic'
-    Main.panel.statusArea[uuid].actor.visible = true
+    if (indicator === null) {
+      indicator = new SliderMenuItem()
+      Main.panel.statusArea.aggregateMenu.menu.addMenuItem(indicator.menu, 2)
+    }
   }
 
   this.disable = function disable () {
-    Main.panel.statusArea[uuid].destroy()
+    // TODO: Figure out how to remove from panel
+    indicator.destroy()
+    indicator = null
   }
 }
 
 function init () { // eslint-disable-line no-unused-vars
-  // TODO: Embed extension into main settings dropdown instead
-  // of adding a separate icon for managing the temperature
   return new Extension()
 }
