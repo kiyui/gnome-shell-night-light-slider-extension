@@ -81,20 +81,16 @@ const SliderMenuItem = new Lang.Class({
   }
 })
 
+// Extension initilization
 function Extension () {
-  let indicator = null
-
   this.enable = function enable () {
-    if (indicator === null) {
-      indicator = new SliderMenuItem()
-      Main.panel.statusArea.aggregateMenu.menu.addMenuItem(indicator.menu, 2)
-    }
+    const indicator = new SliderMenuItem()
+    Main.panel.statusArea.aggregateMenu.menu.addMenuItem(indicator.menu, 2)
   }
 
   this.disable = function disable () {
-    // TODO: Figure out how to remove from panel
-    indicator.destroy()
-    indicator = null
+    const menuItems = Main.panel.statusArea.aggregateMenu.menu._getMenuItems()
+    menuItems[2].destroy()
   }
 }
 
