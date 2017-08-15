@@ -8,6 +8,9 @@ const Slider = imports.ui.slider
 const PanelMenu = imports.ui.panelMenu
 const PopupMenu = imports.ui.popupMenu
 
+// Globals
+const MAX = 10000
+const MIN = 1000
 const BUS_NAME = 'org.gnome.SettingsDaemon.Color'
 const OBJECT_PATH = '/org/gnome/SettingsDaemon/Color'
 
@@ -27,16 +30,23 @@ const SliderMenuItem = new Lang.Class({
 
   _init: function () {
     this.parent('night-light-symbolic')
-    this._proxy = new ColorProxy(Gio.DBus.session, BUS_NAME, OBJECT_PATH,
-      (proxy, error) => {
-        if (error) {
-          log(error.message)
-          return
-        }
-        this._proxy.connect('g-properties-changed',
-          Lang.bind(this, this._sync))
-        this._sync()
-      })
+
+    this._schema = new Gio.Settings({
+      schema: 'org.gnome.settings-daemon.plugins.color'
+    })
+
+    // We use this proxy to communicate external changes (like a stream) but set
+    // the value using the schema because using the proxy doesn't seem to reflect
+    // or be saved. This can be monitored in dconf. Not sure why :)
+    this._proxy = new ColorProxy(Gio.DBus.session, BUS_NAME, OBJECT_PATH, (proxy, error) => {
+      if (error) {
+        log(error.message)
+        return
+      }
+
+      this._proxy.connect('g-properties-changed', Lang.bind(this, this._update_slider))
+      this._update_slider()
+    })
 
     this._item = new PopupMenu.PopupBaseMenuItem({ activate: false })
     this.menu.addMenuItem(this._item)
@@ -59,19 +69,14 @@ const SliderMenuItem = new Lang.Class({
     this._item.actor.connect('key-press-event', Lang.bind(this, function (actor, event) {
       return this._slider.onKeyPressEvent(actor, event)
     }))
-
-    this._schema = new Gio.Settings({
-      schema: 'org.gnome.settings-daemon.plugins.color'
-    })
   },
   _sliderChanged: function (slider, value) {
-    const MAX = 10000
-    const MIN = 1000
     const temperature = (value * (MAX - MIN)) + MIN
-    this._proxy.Temperature = parseInt(temperature)
+    this._schema.set_uint('night-light-temperature', parseInt(temperature))
   },
-  _sync: function () {
-    const value = this._proxy.Temperature / 10000.0
+  _update_slider: function () {
+    const temperature = this._schema.get_uint('night-light-temperature')
+    const value = (temperature - MIN) / (MAX - MIN)
     this._slider.setValue(value)
   }
 })
