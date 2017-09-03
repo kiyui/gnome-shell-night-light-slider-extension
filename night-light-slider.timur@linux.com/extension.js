@@ -9,6 +9,7 @@ const PanelMenu = imports.ui.panelMenu
 const PopupMenu = imports.ui.popupMenu
 
 // Globals
+const INDEX = 2
 const MAX = 10000
 const MIN = 1000
 const BUS_NAME = 'org.gnome.SettingsDaemon.Color'
@@ -18,6 +19,7 @@ const OBJECT_PATH = '/org/gnome/SettingsDaemon/Color'
 const ColorInterface = '<node> \
 <interface name="org.gnome.SettingsDaemon.Color"> \
   <property name="Temperature" type="u" access="readwrite"/> \
+  <property name="NightLightActive" type="b" access="read"/> \
 </interface> \
 </node>'
 /* eslint-enable */
@@ -44,15 +46,15 @@ const SliderMenuItem = new Lang.Class({
         return
       }
 
-      this._proxy.connect('g-properties-changed', Lang.bind(this, this._update_slider))
-      this._update_slider()
+      this._proxy.connect('g-properties-changed', () => this.update_view())
+      this.update_view()
     })
 
     this._item = new PopupMenu.PopupBaseMenuItem({ activate: false })
     this.menu.addMenuItem(this._item)
 
     this._slider = new Slider.Slider(0)
-    this._slider.connect('value-changed', Lang.bind(this, this._sliderChanged))
+    this._slider.connect('value-changed', (slider, value) => this._sliderChanged(slider, value))
     this._slider.actor.accessible_name = ('Temperature')
 
     let icon = new St.Icon({
@@ -62,22 +64,27 @@ const SliderMenuItem = new Lang.Class({
 
     this._item.actor.add(icon)
     this._item.actor.add(this._slider.actor, { expand: true })
-    this._item.actor.connect('button-press-event', Lang.bind(this, function (actor, event) {
+    this._item.actor.connect('button-press-event', (actor, event) => {
       return this._slider.startDragging(event)
-    }))
+    })
 
-    this._item.actor.connect('key-press-event', Lang.bind(this, function (actor, event) {
+    this._item.actor.connect('key-press-event', (actor, event) => {
       return this._slider.onKeyPressEvent(actor, event)
-    }))
+    })
   },
   _sliderChanged: function (slider, value) {
     const temperature = (value * (MAX - MIN)) + MIN
     this._schema.set_uint('night-light-temperature', parseInt(temperature))
   },
-  _update_slider: function () {
+  update_view: function () {
+    // Update temperature view
     const temperature = this._schema.get_uint('night-light-temperature')
     const value = (temperature - MIN) / (MAX - MIN)
     this._slider.setValue(value)
+    // Update visibility
+    const active = this._proxy.NightLightActive
+    const menuItems = Main.panel.statusArea.aggregateMenu.menu._getMenuItems()
+    menuItems[INDEX].actor.visible = active
   }
 })
 
@@ -85,12 +92,12 @@ const SliderMenuItem = new Lang.Class({
 function Extension () {
   this.enable = function enable () {
     const indicator = new SliderMenuItem()
-    Main.panel.statusArea.aggregateMenu.menu.addMenuItem(indicator.menu, 2)
+    Main.panel.statusArea.aggregateMenu.menu.addMenuItem(indicator.menu, INDEX)
   }
 
   this.disable = function disable () {
     const menuItems = Main.panel.statusArea.aggregateMenu.menu._getMenuItems()
-    menuItems[2].destroy()
+    menuItems[INDEX].destroy()
   }
 }
 
