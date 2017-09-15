@@ -12,8 +12,6 @@ const Convenience = Me.imports.convenience
 
 // Globals
 const INDEX = 2
-const MAX = 10000
-const MIN = 1000
 const BUS_NAME = 'org.gnome.SettingsDaemon.Color'
 const OBJECT_PATH = '/org/gnome/SettingsDaemon/Color'
 
@@ -50,6 +48,10 @@ const SliderMenuItem = new Lang.Class({
       this.update_view()
     })
 
+    // Get settings
+    this._min = this._settings.get_int('minimum')
+    this._max = this._settings.get_int('maximum')
+
     this._item = new PopupMenu.PopupBaseMenuItem({ activate: false })
     this.menu.addMenuItem(this._item)
 
@@ -73,13 +75,13 @@ const SliderMenuItem = new Lang.Class({
     })
   },
   _sliderChanged: function (slider, value) {
-    const temperature = (value * (MAX - MIN)) + MIN
+    const temperature = (value * (this._max - this._min)) + this._min
     this._schema.set_uint('night-light-temperature', parseInt(temperature))
   },
   update_view: function () {
     // Update temperature view
     const temperature = this._schema.get_uint('night-light-temperature')
-    const value = (temperature - MIN) / (MAX - MIN)
+    const value = (temperature - this._min) / (this._max - this._min)
     this._slider.setValue(value)
 
     // Update visibility
