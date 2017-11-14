@@ -77,6 +77,8 @@ const SliderMenuItem = new Lang.Class({
   _sliderChanged: function (slider, value) {
     const temperature = (value * (this._max - this._min)) + this._min
     this._schema.set_uint('night-light-temperature', parseInt(temperature))
+    // If slider is moved, enable night light
+    this._schema.set_boolean('night-light-enabled', true)
   },
   update_view: function () {
     // Update temperature view
