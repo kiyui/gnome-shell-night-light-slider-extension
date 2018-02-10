@@ -1,12 +1,12 @@
 <schemalist>
     <schema id="org.gnome.shell.extensions.nightlightslider" path="/org/gnome/shell/extensions/nightlightslider/">
         <key name="show-always" type="b">
-            <default>true</default>
+            <default>false</default>
             <summary>Show always</summary>
             <description>Show slider even when night light is off</description>
         </key>
         <key name="enable-always" type="b">
-            <default>true</default>
+            <default>false</default>
             <summary>Enable always</summary>
             <description>Enable night light throughout the day</description>
         </key>
