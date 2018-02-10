@@ -99,7 +99,7 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
     },
     {
       type: 'Label',
-      params: { label: 'Changes require restarting extension to take place.' },
+      params: { label: 'Changes require restarting shell (logging in and out) to take place.' },
       tooltip: showAlwaysDescription,
       align: Gtk.Align.CENTER,
       attach: [0, 5, 2, 1]
