@@ -5,6 +5,7 @@ const Gio = imports.gi.Gio
 const Lang = imports.lang
 const Main = imports.ui.main
 const Slider = imports.ui.slider
+const Mainloop = imports.mainloop
 const PanelMenu = imports.ui.panelMenu
 const PopupMenu = imports.ui.popupMenu
 const Me = imports.misc.extensionUtils.getCurrentExtension()
@@ -110,10 +111,27 @@ function Extension () {
 
     // Set enabled 24 hours if set in settings
     if (settings.get_boolean('enable-always')) {
-      log('Setting night light schedule from 0 to 48')
-      schema.set_boolean('night-light-schedule-automatic', false)
-      schema.set_double('night-light-schedule-from', 0)
-      schema.set_double('night-light-schedule-to', 24.0)
+      function updateSchedule () {
+        const date = new Date()
+        const hours = date.getHours()
+        date.setHours(hours - 6)
+        const from = date.getHours()
+        date.setHours(hours + 6)
+        const to = date.getHours()
+
+        print(`Setting night light schedule from ${from} to ${to}`)
+        schema.set_boolean('night-light-schedule-automatic', false)
+        schema.set_double('night-light-schedule-from', from)
+        schema.set_double('night-light-schedule-to', to)
+      }
+
+      updateSchedule()
+
+      let id = Mainloop.timeout_add(1000 * 60 * 60, () => {
+        updateSchedule()
+        return true;
+      }, null);
+      // TODO: Ability to disable this loop
     }
   }
 
