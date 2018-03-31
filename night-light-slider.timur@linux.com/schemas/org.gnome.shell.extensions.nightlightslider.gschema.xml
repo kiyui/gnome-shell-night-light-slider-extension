@@ -5,6 +5,11 @@
             <summary>Show always</summary>
             <description>Show slider even when night light is off</description>
         </key>
+        <key name="show-status-icon" type="b">
+            <default>true</default>
+            <summary>Show status icon</summary>
+            <description>Show status icon in status area</description>
+        </key>
         <key name="enable-always" type="b">
             <default>false</default>
             <summary>Enable always</summary>
