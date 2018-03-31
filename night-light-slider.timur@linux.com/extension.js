@@ -98,7 +98,7 @@ const SliderMenuItem = new Lang.Class({
 
 // Extension initilization
 function Extension () {
-  this.enable = function enable () {
+  this.enable = () => {
     // Settings
     const schema = new Gio.Settings({
       schema: 'org.gnome.settings-daemon.plugins.color'
@@ -108,6 +108,14 @@ function Extension () {
     // Create widget
     const indicator = new SliderMenuItem(schema, settings)
     Main.panel.statusArea.aggregateMenu.menu.addMenuItem(indicator.menu, INDEX)
+
+    this.icon = Main.panel.statusArea.aggregateMenu._nightLight
+    if (!settings.get_boolean('show-status-icon')) {
+      // TODO: Find alternative way to do this; hide() does not work because extension runs too early
+      this.indicators = Main.panel.statusArea.aggregateMenu._nightLight.indicators
+      Main.panel.statusArea.aggregateMenu._nightLight.indicators.hide()
+      Main.panel.statusArea.aggregateMenu._nightLight.indicators = new St.BoxLayout()
+    }
 
     // Set enabled 24 hours if set in settings
     if (settings.get_boolean('enable-always')) {
@@ -135,9 +143,16 @@ function Extension () {
     }
   }
 
-  this.disable = function disable () {
+  this.disable = () => {
     const menuItems = Main.panel.statusArea.aggregateMenu.menu._getMenuItems()
     menuItems[INDEX].destroy()
+
+    // Restore default status icon behaviour
+    if (this.indicators) {
+      Main.panel.statusArea.aggregateMenu._nightLight.indicators.destroy()
+      Main.panel.statusArea.aggregateMenu._nightLight.indicators = this.indicators
+      Main.panel.statusArea.aggregateMenu._nightLight.indicators.show()
+    }
   }
 }
 
