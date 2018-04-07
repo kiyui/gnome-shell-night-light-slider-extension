@@ -129,14 +129,14 @@ const NightLightSchedule = new Lang.Class({
 const NightLightExtension = new Lang.Class({
   Name: 'NightLightExtension',
   _init: function () {
-    this.schema = new Gio.Settings({ schema: COLOR_SCHEMA })
-    this.colorProxy = Gio.DBusProxy.makeProxyWrapper(ColorInterface)
-    this.scheduleUpdater = new NightLightSchedule(this.schema)
+    this._schema = new Gio.Settings({ schema: COLOR_SCHEMA })
+    this._colorProxy = Gio.DBusProxy.makeProxyWrapper(ColorInterface)
+    this._scheduleUpdater = new NightLightSchedule(this._schema)
 
     // Night light icon
-    this.icon = Main.panel.statusArea.aggregateMenu._nightLight
+    this._icon = Main.panel.statusArea.aggregateMenu._nightLight
     // This will be defined if icon is set to hide
-    this.indicators = null
+    this._indicators = null
   },
   enable: function () {
     // Settings
@@ -146,7 +146,7 @@ const NightLightExtension = new Lang.Class({
     this._schema.set_boolean('night-light-enabled', true)
 
     // Create and add widget
-    const indicator = new NightLightSlider(this.schema, {
+    const indicator = new NightLightSlider(this._schema, {
       minimum: settings.get_int('minimum'),
       maximum: settings.get_int('maximum')
     })
@@ -154,19 +154,19 @@ const NightLightExtension = new Lang.Class({
 
     // Set up updater loop to set night light schedule if update always is enabled
     if (settings.get_boolean('enable-always')) {
-      this.scheduleUpdater._enableLoop()
+      this._scheduleUpdater._enableLoop()
     }
 
     // Hide status icon if set to disable
-    if (!settings.get_boolean('show-status-icon') && this.icon) {
+    if (!settings.get_boolean('show-status-icon') && this._icon) {
       log(`[night-light-slider] Hiding status icon`)
-      this.indicators = this.icon.indicators
-      this.icon.indicators.hide()
-      this.icon.indicators = new St.BoxLayout()
+      this._indicators = this.icon.indicators
+      this._icon.indicators.hide()
+      this._icon.indicators = new St.BoxLayout()
     }
 
     // Set up proxy to update slider view
-    this.colorProxy(Gio.DBus.session, BUS_NAME, OBJECT_PATH, (proxy, error) => {
+    this._colorProxy(Gio.DBus.session, BUS_NAME, OBJECT_PATH, (proxy, error) => {
       if (error) {
         log(error.message)
         return
@@ -192,14 +192,14 @@ const NightLightExtension = new Lang.Class({
     menuItems[INDEX].destroy()
 
     // Restore default status icon behaviour
-    if (this.indicators) {
+    if (this._indicators) {
       Main.panel.statusArea.aggregateMenu._nightLight.indicators.destroy()
-      Main.panel.statusArea.aggregateMenu._nightLight.indicators = this.indicators
+      Main.panel.statusArea.aggregateMenu._nightLight.indicators = this._indicators
       Main.panel.statusArea.aggregateMenu._nightLight.indicators.show()
     }
 
     // Disable updater loop
-    this.scheduleUpdater._disableLoop()
+    this._scheduleUpdater._disableLoop()
   }
 })
 
