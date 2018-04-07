@@ -162,14 +162,19 @@ const NightLightExtension = new Lang.Class({
         return
       }
 
-      proxy.connect('g-properties-changed', () => {
+      const updateView = () => {
         indicator._updateView()
         if (!settings.get_boolean('show-always')) {
-          const active = this._proxy.NightLightActive
+          const active = proxy.NightLightActive
           const menuItems = Main.panel.statusArea.aggregateMenu.menu._getMenuItems()
           menuItems[INDEX].actor.visible = active
         }
-      })
+      }
+
+      proxy.connect('g-properties-changed', updateView)
+
+      // Update view once on init
+      updateView()
     })
   },
   disable: function () {
