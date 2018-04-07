@@ -67,8 +67,6 @@ const NightLightSlider = new Lang.Class({
   _sliderChanged: function (slider, value) {
     const temperature = (value * (this._max - this._min)) + this._min
     this._schema.set_uint('night-light-temperature', parseInt(temperature))
-    // If slider is moved, enable night light
-    this._schema.set_boolean('night-light-enabled', true)
   },
   _updateView: function () {
     // Update temperature view
@@ -94,7 +92,7 @@ const NightLightSchedule = new Lang.Class({
     const from = date.getHours()
     date.setHours(hours + 6)
     const to = date.getHours()
-    log(`Setting night light schedule from ${from} to ${to}`)
+    log(`[night-light-slider] Setting night light schedule from ${from} to ${to}`)
     this._schema.set_boolean('night-light-schedule-automatic', false)
     this._schema.set_double('night-light-schedule-to', to)
     this._schema.set_double('night-light-schedule-from', from)
@@ -127,6 +125,8 @@ const NightLightExtension = new Lang.Class({
     this.colorProxy = Gio.DBusProxy.makeProxyWrapper(ColorInterface)
     this.scheduleUpdater = new NightLightSchedule(this.schema)
 
+    // Night light icon
+    this.icon = Main.panel.statusArea.aggregateMenu._nightLight
     // This will be defined if icon is set to hide
     this.indicators = null
   },
@@ -134,13 +134,15 @@ const NightLightExtension = new Lang.Class({
     // Settings
     const settings = Convenience.getSettings()
 
+    // Enable night light, otherwise why use this extension :D?
+    this._schema.set_boolean('night-light-enabled', true)
+
     // Create and add widget
     const indicator = new NightLightSlider(this.schema, {
       minimum: settings.get_int('minimum'),
       maximum: settings.get_int('maximum')
     })
     Main.panel.statusArea.aggregateMenu.menu.addMenuItem(indicator.menu, INDEX)
-    this.icon = Main.panel.statusArea.aggregateMenu._nightLight
 
     // Set up updater loop to set night light schedule if update always is enabled
     if (settings.get_boolean('enable-always')) {
@@ -148,11 +150,11 @@ const NightLightExtension = new Lang.Class({
     }
 
     // Hide status icon if set to disable
-    if (!settings.get_boolean('show-status-icon')) {
-      // TODO: Find alternative way to do this; hide() does not work because extension runs too early
-      this.indicators = Main.panel.statusArea.aggregateMenu._nightLight.indicators
-      Main.panel.statusArea.aggregateMenu._nightLight.indicators.hide()
-      Main.panel.statusArea.aggregateMenu._nightLight.indicators = new St.BoxLayout()
+    if (!settings.get_boolean('show-status-icon') && this.icon) {
+      log(`[night-light-slider] Hiding status icon`)
+      this.indicators = this.icon.indicators
+      this.icon.indicators.hide()
+      this.icon.indicators = new St.BoxLayout()
     }
 
     // Set up proxy to update slider view
