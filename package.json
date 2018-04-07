@@ -1,0 +1,30 @@
+{
+  "name": "gnome-shell-night-light-slider-extension",
+  "description": "Change night light temperature",
+  "scripts": {
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TimurKiyivinski/gnome-shell-night-light-slider-extension.git"
+  },
+  "keywords": [
+    "gnome",
+    "gjs",
+    "night",
+    "light",
+    "extension"
+  ],
+  "author": "Timur Kiyui",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/TimurKiyivinski/gnome-shell-night-light-slider-extension/issues"
+  },
+  "homepage": "https://github.com/TimurKiyivinski/gnome-shell-night-light-slider-extension#readme",
+  "devDependencies": {
+    "standard": "^11.0.1"
+  },
+  "standard": {
+    "env": "jest"
+  }
+}
