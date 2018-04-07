@@ -34,6 +34,7 @@ const NightLightSlider = new Lang.Class({
     this._schema = schema
     this._min = settings.minimum
     this._max = settings.maximum
+    this._listeners = []
 
     // Set up view
     this._item = new PopupMenu.PopupBaseMenuItem({ activate: false })
@@ -65,8 +66,15 @@ const NightLightSlider = new Lang.Class({
     this.proxy.connect('g-properties-changed', this.update_view.bind(this))
   },
   _sliderChanged: function (slider, value) {
-    const temperature = (value * (this._max - this._min)) + this._min
-    this._schema.set_uint('night-light-temperature', parseInt(temperature))
+    const temperature = parseInt(value * (this._max - this._min)) + this._min
+    this._schema.set_uint('night-light-temperature', temperature)
+
+    this._listeners.forEach(callback => {
+      callback(temperature)
+    })
+  },
+  _onSliderChanged: function (callback) {
+    this._listeners.push(callback)
   },
   _updateView: function () {
     // Update temperature view
