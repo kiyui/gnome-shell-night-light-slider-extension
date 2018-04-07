@@ -2,7 +2,8 @@
   "name": "gnome-shell-night-light-slider-extension",
   "description": "Change night light temperature",
   "scripts": {
-    "test": "standard"
+    "lint": "standard",
+    "lint:fix": "standard --fix"
   },
   "repository": {
     "type": "git",
@@ -22,9 +23,13 @@
   },
   "homepage": "https://github.com/TimurKiyivinski/gnome-shell-night-light-slider-extension#readme",
   "devDependencies": {
+    "pre-commit": "^1.2.2",
     "standard": "^11.0.1"
   },
   "standard": {
     "env": "jest"
-  }
+  },
+  "pre-commit": [
+    "lint:fix"
+  ]
 }

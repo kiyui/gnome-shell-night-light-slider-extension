@@ -1,9 +1,8 @@
 /* global imports log */
-
+const Lang = imports.lang
 const St = imports.gi.St
 const Gio = imports.gi.Gio
 const GLib = imports.gi.GLib
-const Lang = imports.lang
 const Main = imports.ui.main
 const Slider = imports.ui.slider
 const PanelMenu = imports.ui.panelMenu
