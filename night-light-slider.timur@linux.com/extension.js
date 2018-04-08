@@ -135,7 +135,10 @@ const NightLightExtension = new Lang.Class({
     // Night light icon
     this._icon = Main.panel.statusArea.aggregateMenu._nightLight
     // This will be defined if icon is set to hide
+    this._indicator = null
     this._indicators = null
+    this._construct = () => new Error('[night-light-slider] View construct stub not set up!')
+    this._deconstruct = () => new Error('[night-light-slider] View deconstruct stub not set up!')
   },
   enable: function () {
     // Settings
@@ -145,11 +148,17 @@ const NightLightExtension = new Lang.Class({
     this._schema.set_boolean('night-light-enabled', true)
 
     // Create and add widget
-    const indicator = new NightLightSlider(this._schema, {
+    this._indicator = new NightLightSlider(this._schema, {
       minimum: settings.get_int('minimum'),
       maximum: settings.get_int('maximum')
     })
-    Main.panel.statusArea.aggregateMenu.menu.addMenuItem(indicator.menu, INDEX)
+
+    // Set up display construction stubs
+    this._construct = () => Main.panel.statusArea.aggregateMenu.menu.addMenuItem(this._indicator.menu, INDEX)
+    this._deconstruct = () => this._indicator.menu.destroy()
+
+    // Run construct function
+    this._construct()
 
     // Set up updater loop to set night light schedule if update always is enabled
     if (settings.get_boolean('enable-always')) {
@@ -159,7 +168,7 @@ const NightLightExtension = new Lang.Class({
     // Hide status icon if set to disable
     if (!settings.get_boolean('show-status-icon') && this._icon) {
       log(`[night-light-slider] Hiding status icon`)
-      this._indicators = this.icon.indicators
+      this._indicators = this._icon.indicators
       this._icon.indicators.hide()
       this._icon.indicators = new St.BoxLayout()
     }
@@ -172,7 +181,7 @@ const NightLightExtension = new Lang.Class({
       }
 
       const updateView = () => {
-        indicator._updateView()
+        this._indicator._updateView()
         if (!settings.get_boolean('show-always')) {
           const active = proxy.NightLightActive
           const menuItems = Main.panel.statusArea.aggregateMenu.menu._getMenuItems()
@@ -187,8 +196,8 @@ const NightLightExtension = new Lang.Class({
     })
   },
   disable: function () {
-    const menuItems = Main.panel.statusArea.aggregateMenu.menu._getMenuItems()
-    menuItems[INDEX].destroy()
+    // Run deconstruct function
+    this._deconstruct()
 
     // Restore default status icon behaviour
     if (this._indicators) {
