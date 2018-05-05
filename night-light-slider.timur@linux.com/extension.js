@@ -80,6 +80,9 @@ const NightLightSlider = new Lang.Class({
     const temperature = this._schema.get_uint('night-light-temperature')
     const value = (temperature - this._min) / (this._max - this._min)
     this._slider.setValue(value)
+  },
+  _scroll: function (event) {
+    this._slider.scroll(event)
   }
 })
 
@@ -172,6 +175,12 @@ const NightLightExtension = new Lang.Class({
       this._icon.indicators.hide()
       this._icon.indicators = new St.BoxLayout()
     }
+
+    // When scrolling the indicator, change night light intensity
+    this._icon.indicators.connect('scroll-event', (actor, event) => {
+      this._indicator._scroll(event)
+      return true
+    })
 
     // Set up proxy to update slider view
     this._colorProxy(Gio.DBus.session, BUS_NAME, OBJECT_PATH, (proxy, error) => {
