@@ -25,5 +25,10 @@
             <summary>Maximum value</summary>
             <description>Maximum night light slider value</description>
         </key>
+        <key name="brightness-sync" type="b">
+            <default>false</default>
+            <summary>Brightness sync</summary>
+            <description>Sync brightness slider with night light slider</description>
+        </key>
     </schema>
 </schemalist>
