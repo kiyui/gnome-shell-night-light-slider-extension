@@ -20,6 +20,8 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
   const minimumDescription = schema.settings_schema.get_key('minimum').get_description()
   const maximumName = schema.settings_schema.get_key('maximum').get_summary()
   const maximumDescription = schema.settings_schema.get_key('maximum').get_description()
+  const brightnessSyncName = schema.settings_schema.get_key('brightness-sync').get_summary()
+  const brightnessSyncDescription = schema.settings_schema.get_key('brightness-sync').get_description()
 
   // Create children objects
   const widgets = [
@@ -82,17 +84,36 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
     },
     {
       type: 'Label',
+      params: { label: `${brightnessSyncName}: ` },
+      tooltip: brightnessSyncDescription,
+      align: Gtk.Align.END,
+      attach: [0, 4, 1, 1]
+    },
+    {
+      type: 'Switch',
+      params: { active: schema.get_boolean('brightness-sync') },
+      tooltip: brightnessSyncDescription,
+      align: Gtk.Align.START,
+      attach: [1, 4, 1, 1],
+      connect: {
+        'state-set': self => {
+          schema.set_boolean('brightness-sync', self.active)
+        }
+      }
+    },
+    {
+      type: 'Label',
       params: { label: `${minimumName}: ` },
       tooltip: minimumDescription,
       align: Gtk.Align.END,
-      attach: [0, 4, 1, 1]
+      attach: [0, 5, 1, 1]
     },
     {
       type: 'Entry',
       params: { text: schema.get_int('minimum').toString() },
       tooltip: minimumDescription,
       align: Gtk.Align.START,
-      attach: [1, 4, 1, 1],
+      attach: [1, 5, 1, 1],
       connect: {
         'changed': self => {
           schema.set_int('minimum', parseInt(self.text))
@@ -104,14 +125,14 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
       params: { label: `${maximumName}: ` },
       tooltip: maximumDescription,
       align: Gtk.Align.END,
-      attach: [0, 5, 1, 1]
+      attach: [0, 6, 1, 1]
     },
     {
       type: 'Entry',
       params: { text: schema.get_int('maximum').toString() },
       tooltip: maximumDescription,
       align: Gtk.Align.START,
-      attach: [1, 5, 1, 1],
+      attach: [1, 6, 1, 1],
       connect: {
         'changed': self => {
           schema.set_int('maximum', parseInt(self.text))
@@ -123,7 +144,7 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
       params: { label: 'Changes require restarting shell (logging in and out) to take place.' },
       tooltip: showAlwaysDescription,
       align: Gtk.Align.CENTER,
-      attach: [0, 6, 2, 1]
+      attach: [0, 7, 2, 1]
     }
   ]
 
