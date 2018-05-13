@@ -203,6 +203,14 @@ const NightLightExtension = new Lang.Class({
       // Update view once on init
       updateView()
     })
+
+    // Event hooks
+    this._indicator._onSliderChanged((temperature, value) => {
+      // Set up night light to sync with brightness if changed
+      if (settings.get_boolean('brightness-sync')) {
+        Main.panel.statusArea.aggregateMenu._brightness._slider.emit('value-changed', value)
+      }
+    })
   },
   disable: function () {
     // Run deconstruct function
