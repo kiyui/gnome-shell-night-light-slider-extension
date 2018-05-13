@@ -69,7 +69,7 @@ const NightLightSlider = new Lang.Class({
     this._schema.set_uint('night-light-temperature', temperature)
 
     this._listeners.forEach(callback => {
-      callback(temperature)
+      callback(temperature, value)
     })
   },
   _onSliderChanged: function (callback) {
