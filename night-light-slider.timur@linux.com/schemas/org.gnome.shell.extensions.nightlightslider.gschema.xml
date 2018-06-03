@@ -30,5 +30,10 @@
             <summary>Brightness sync</summary>
             <description>Sync brightness slider with night light slider</description>
         </key>
+        <key name="show-in-submenu" type="b">
+            <default>false</default>
+            <summary>Show in submenu</summary>
+            <description>Display slider in night light submenu</description>
+        </key>
     </schema>
 </schemalist>
