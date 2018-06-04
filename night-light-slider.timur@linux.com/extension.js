@@ -38,9 +38,11 @@ const NightLightSlider = new Lang.Class({
     // Set up view
     this._item = new PopupMenu.PopupBaseMenuItem({ activate: false })
     this.menu.addMenuItem(this._item)
-    this._item.actor.add(new St.Icon({
-      icon_name: 'night-light-symbolic',
-      style_class: 'popup-menu-icon' }))
+
+    if (settings.enable_icon) {
+      this._icon = new St.Icon({ icon_name: 'night-light-symbolic', style_class: 'popup-menu-icon' })
+      this._item.actor.add(this._icon)
+    }
 
     // Slider
     this._slider = new Slider.Slider(0)
@@ -153,11 +155,21 @@ const NightLightExtension = new Lang.Class({
     // Create and add widget
     this._indicator = new NightLightSlider(this._schema, {
       minimum: settings.get_int('minimum'),
-      maximum: settings.get_int('maximum')
+      maximum: settings.get_int('maximum'),
+      enable_icon: !settings.get_boolean('show-in-submenu')
     })
 
     // Set up display construction stubs
-    this._construct = () => Main.panel.statusArea.aggregateMenu.menu.addMenuItem(this._indicator.menu, INDEX)
+    if (settings.get_boolean('show-in-submenu')) {
+      this._construct = () => {
+        Main.panel.statusArea.aggregateMenu._nightLight.menu._getMenuItems()[0].menu.addMenuItem(this._indicator.menu)
+      }
+    } else {
+      this._construct = () => {
+        Main.panel.statusArea.aggregateMenu.menu.addMenuItem(this._indicator.menu, INDEX)
+      }
+    }
+
     this._deconstruct = () => this._indicator.menu.destroy()
 
     // Run construct function
