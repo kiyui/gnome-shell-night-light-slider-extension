@@ -2,6 +2,15 @@
 /* global imports */
 
 const Gettext = imports.gettext
+const Me = imports.misc.extensionUtils.getCurrentExtension()
+
+;(function () {
+  // Initialize gettext
+  const localeDir = Me.dir.get_child('locale').get_path()
+  Gettext.bindtextdomain('night-light-slider', localeDir)
+})()
+
+// Assign gettext as _
 const { gettext: _ } = Gettext.domain('night-light-slider')
 
 const preferences = {

@@ -188,6 +188,5 @@ function buildPrefsWidget () {
 }
 
 function init () {
-  Convenience.initTranslations(Me)
   log('Setting up night light slider preferences')
 }
