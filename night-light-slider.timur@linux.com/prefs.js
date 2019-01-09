@@ -4,41 +4,25 @@ const Gtk = imports.gi.Gtk
 
 // Extension specific
 const Me = imports.misc.extensionUtils.getCurrentExtension()
+const Lang = Me.imports.lang
 const Convenience = Me.imports.convenience
 
 function buildPrefsWidget () { // eslint-disable-line no-unused-vars
   const schema = Convenience.getSettings()
 
-  // Text and descriptions
-  const showAlwaysName = 'Show always'
-  const showAlwaysDescription = 'Show slider even when night light is off'
-  const showIconName = 'Show status icon'
-  const showIconDescription = 'Show status icon in status area'
-  const enableAlwaysName = 'Enable always'
-  const enableAlwaysDescription = 'Enable night light throughout the day'
-  const minimumName = 'Minimum value'
-  const minimumDescription = 'Minimum night light slider value'
-  const maximumName = 'Maximum value'
-  const maximumDescription = 'Maximum night light slider value'
-  const brightnessSyncName = 'Brightness sync'
-  const brightnessSyncDescription = 'Sync brightness slider with night light slider'
-  const showInSubmenuName = 'Show in submenu'
-  const showInSubmenuDescription = 'Display slider in night light submenu'
-  const restartRequiredName = 'Changes require restarting shell (logging in and out) to take place.'
-
   // Create children objects
   const widgets = [
     {
       type: 'Label',
-      params: { label: `${showAlwaysName}: ` },
-      tooltip: showAlwaysDescription,
+      params: { label: `${Lang.preferences.showAlways.label}: ` },
+      tooltip: Lang.preferences.showAlways.tooltip,
       align: Gtk.Align.END,
       attach: [0, 1, 1, 1]
     },
     {
       type: 'Switch',
       params: { active: schema.get_boolean('show-always') },
-      tooltip: showAlwaysDescription,
+      tooltip: Lang.preferences.showAlways.tooltip,
       align: Gtk.Align.START,
       attach: [1, 1, 1, 1],
       connect: {
@@ -49,15 +33,15 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
     },
     {
       type: 'Label',
-      params: { label: `${showIconName}: ` },
-      tooltip: showIconDescription,
+      params: { label: `${Lang.preferences.showStatusIcon.label}: ` },
+      tooltip: Lang.preferences.showStatusIcon.tooltip,
       align: Gtk.Align.END,
       attach: [0, 2, 1, 1]
     },
     {
       type: 'Switch',
       params: { active: schema.get_boolean('show-status-icon') },
-      tooltip: showIconDescription,
+      tooltip: Lang.preferences.showStatusIcon.tooltip,
       align: Gtk.Align.START,
       attach: [1, 2, 1, 1],
       connect: {
@@ -68,15 +52,15 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
     },
     {
       type: 'Label',
-      params: { label: `${enableAlwaysName}: ` },
-      tooltip: enableAlwaysDescription,
+      params: { label: `${Lang.preferences.enableAlways.label}: ` },
+      tooltip: Lang.preferences.enableAlways.tooltip,
       align: Gtk.Align.END,
       attach: [0, 3, 1, 1]
     },
     {
       type: 'Switch',
       params: { active: schema.get_boolean('enable-always') },
-      tooltip: enableAlwaysDescription,
+      tooltip: Lang.preferences.enableAlways.tooltip,
       align: Gtk.Align.START,
       attach: [1, 3, 1, 1],
       connect: {
@@ -87,15 +71,15 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
     },
     {
       type: 'Label',
-      params: { label: `${brightnessSyncName}: ` },
-      tooltip: brightnessSyncDescription,
+      params: { label: `${Lang.preferences.brightnessSync.label}: ` },
+      tooltip: Lang.preferences.brightnessSync.tooltip,
       align: Gtk.Align.END,
       attach: [0, 4, 1, 1]
     },
     {
       type: 'Switch',
       params: { active: schema.get_boolean('brightness-sync') },
-      tooltip: brightnessSyncDescription,
+      tooltip: Lang.preferences.brightnessSync.tooltip,
       align: Gtk.Align.START,
       attach: [1, 4, 1, 1],
       connect: {
@@ -106,15 +90,15 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
     },
     {
       type: 'Label',
-      params: { label: `${showInSubmenuName}: ` },
-      tooltip: showInSubmenuDescription,
+      params: { label: `${Lang.preferences.showInSubmenu.label}: ` },
+      tooltip: Lang.preferences.showInSubmenu.tooltip,
       align: Gtk.Align.END,
       attach: [0, 5, 1, 1]
     },
     {
       type: 'Switch',
       params: { active: schema.get_boolean('show-in-submenu') },
-      tooltip: showInSubmenuDescription,
+      tooltip: Lang.preferences.showInSubmenu.tooltip,
       align: Gtk.Align.START,
       attach: [1, 5, 1, 1],
       connect: {
@@ -125,15 +109,15 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
     },
     {
       type: 'Label',
-      params: { label: `${minimumName}: ` },
-      tooltip: minimumDescription,
+      params: { label: `${Lang.preferences.minimum.label}: ` },
+      tooltip: Lang.preferences.minimum.tooltip,
       align: Gtk.Align.END,
       attach: [0, 6, 1, 1]
     },
     {
       type: 'Entry',
       params: { text: schema.get_int('minimum').toString() },
-      tooltip: minimumDescription,
+      tooltip: Lang.preferences.minimum.tooltip,
       align: Gtk.Align.START,
       attach: [1, 6, 1, 1],
       connect: {
@@ -144,15 +128,15 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
     },
     {
       type: 'Label',
-      params: { label: `${maximumName}: ` },
-      tooltip: maximumDescription,
+      params: { label: `${Lang.preferences.maximum.label}: ` },
+      tooltip: Lang.preferences.maximum.tooltip,
       align: Gtk.Align.END,
       attach: [0, 7, 1, 1]
     },
     {
       type: 'Entry',
       params: { text: schema.get_int('maximum').toString() },
-      tooltip: maximumDescription,
+      tooltip: Lang.preferences.maximum.tooltip,
       align: Gtk.Align.START,
       attach: [1, 7, 1, 1],
       connect: {
@@ -163,7 +147,7 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
     },
     {
       type: 'Label',
-      params: { label: restartRequiredName },
+      params: { label: Lang.preferences.restartRequired.label },
       align: Gtk.Align.CENTER,
       attach: [0, 8, 2, 1]
     }
