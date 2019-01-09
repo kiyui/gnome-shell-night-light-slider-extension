@@ -10,20 +10,21 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
   const schema = Convenience.getSettings()
 
   // Text and descriptions
-  const showAlwaysName = schema.settings_schema.get_key('show-always').get_summary()
-  const showAlwaysDescription = schema.settings_schema.get_key('show-always').get_description()
-  const showIconName = schema.settings_schema.get_key('show-status-icon').get_summary()
-  const showIconDescription = schema.settings_schema.get_key('show-status-icon').get_description()
-  const enableAlwaysName = schema.settings_schema.get_key('enable-always').get_summary()
-  const enableAlwaysDescription = schema.settings_schema.get_key('enable-always').get_description()
-  const minimumName = schema.settings_schema.get_key('minimum').get_summary()
-  const minimumDescription = schema.settings_schema.get_key('minimum').get_description()
-  const maximumName = schema.settings_schema.get_key('maximum').get_summary()
-  const maximumDescription = schema.settings_schema.get_key('maximum').get_description()
-  const brightnessSyncName = schema.settings_schema.get_key('brightness-sync').get_summary()
-  const brightnessSyncDescription = schema.settings_schema.get_key('brightness-sync').get_description()
-  const showInSubmenuName = schema.settings_schema.get_key('show-in-submenu').get_summary()
-  const showInSubmenuDescription = schema.settings_schema.get_key('show-in-submenu').get_description()
+  const showAlwaysName = 'Show always'
+  const showAlwaysDescription = 'Show slider even when night light is off'
+  const showIconName = 'Show status icon'
+  const showIconDescription = 'Show status icon in status area'
+  const enableAlwaysName = 'Enable always'
+  const enableAlwaysDescription = 'Enable night light throughout the day'
+  const minimumName = 'Minimum value'
+  const minimumDescription = 'Minimum night light slider value'
+  const maximumName = 'Maximum value'
+  const maximumDescription = 'Maximum night light slider value'
+  const brightnessSyncName = 'Brightness sync'
+  const brightnessSyncDescription = 'Sync brightness slider with night light slider'
+  const showInSubmenuName = 'Show in submenu'
+  const showInSubmenuDescription = 'Display slider in night light submenu'
+  const restartRequiredName = 'Changes require restarting shell (logging in and out) to take place.'
 
   // Create children objects
   const widgets = [
@@ -49,7 +50,7 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
     {
       type: 'Label',
       params: { label: `${showIconName}: ` },
-      tooltip: showAlwaysDescription,
+      tooltip: showIconDescription,
       align: Gtk.Align.END,
       attach: [0, 2, 1, 1]
     },
@@ -162,8 +163,7 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
     },
     {
       type: 'Label',
-      params: { label: 'Changes require restarting shell (logging in and out) to take place.' },
-      tooltip: showAlwaysDescription,
+      params: { label: restartRequiredName },
       align: Gtk.Align.CENTER,
       attach: [0, 8, 2, 1]
     }
@@ -179,8 +179,10 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
   widgets.map(function createWidget ({ type, params, tooltip, align, attach, connect }) {
     const widget = new Gtk[type](params)
 
-    // Set description
-    widget.set_tooltip_text(tooltip)
+    if (tooltip) {
+      // Set description
+      widget.set_tooltip_text(tooltip)
+    }
 
     // Set alignment
     widget.set_halign(align)
