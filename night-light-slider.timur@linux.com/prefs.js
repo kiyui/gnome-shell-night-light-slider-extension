@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* global imports log */
 
 const Gtk = imports.gi.Gtk
@@ -7,7 +8,7 @@ const Me = imports.misc.extensionUtils.getCurrentExtension()
 const Lang = Me.imports.lang
 const Convenience = Me.imports.convenience
 
-function buildPrefsWidget () { // eslint-disable-line no-unused-vars
+function buildPrefsWidget () {
   const schema = Convenience.getSettings()
 
   // Create children objects
@@ -186,6 +187,7 @@ function buildPrefsWidget () { // eslint-disable-line no-unused-vars
   return vbox
 }
 
-function init () { // eslint-disable-line
+function init () {
+  Convenience.initTranslations(Me)
   log('Setting up night light slider preferences')
 }

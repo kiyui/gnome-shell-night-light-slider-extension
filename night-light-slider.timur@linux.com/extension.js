@@ -241,5 +241,6 @@ const NightLightExtension = new Lang.Class({
 })
 
 function init () { // eslint-disable-line
+  Convenience.initTranslations(Me)
   return new NightLightExtension()
 }
