@@ -28,7 +28,7 @@
   "homepage": "https://github.com/TimurKiyivinski/gnome-shell-night-light-slider-extension#readme",
   "devDependencies": {
     "pre-commit": "^1.2.2",
-    "standard": "^11.0.1"
+    "standard": "^12.0.1"
   },
   "standard": {
     "env": "jest"
