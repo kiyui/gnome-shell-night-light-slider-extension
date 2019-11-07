@@ -3,8 +3,8 @@
   "description": "Change night light temperature",
   "settings-schema": "org.gnome.shell.extensions.nightlightslider",
   "uuid": "night-light-slider.timur@linux.com",
-  "version": 12,
-  "url": "https://github.com/TimurKiyivinski/gnome-shell-night-light-slider-extension",
+  "version": 13,
+  "url": "https://github.com/kiyui/gnome-shell-night-light-slider-extension",
   "shell-version": [
     "3.34"
   ]
