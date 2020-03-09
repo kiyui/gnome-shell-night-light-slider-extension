@@ -8,6 +8,7 @@ const PanelMenu = imports.ui.panelMenu
 const PopupMenu = imports.ui.popupMenu
 const Me = imports.misc.extensionUtils.getCurrentExtension()
 const Convenience = Me.imports.convenience
+const GObject = imports.gi.GObject
 
 // Globals
 const INDEX = 2
@@ -24,71 +25,74 @@ const ColorInterface = '<node> \
 </node>'
 /* eslint-enable */
 
-class NightLightSlider extends PanelMenu.SystemIndicator {
-  constructor (schema, settings) {
-    super('night-light-symbolic')
-    this._schema = schema
-    this._min = settings.minimum
-    this._max = settings.maximum
-    this._listeners = []
+const NightLightSlider = GObject.registerClass(
+  {
+    GType: 'NightLightSlider'
+  }, class NightLightSlider extends PanelMenu.SystemIndicator {
+    _init(schema, settings) {
+      super._init('night-light-symbolic')
+      this._schema = schema
+      this._min = settings.minimum
+      this._max = settings.maximum
+      this._listeners = []
 
-    // Set up view
-    this._item = new PopupMenu.PopupBaseMenuItem({ activate: false })
-    this.menu.addMenuItem(this._item)
+      // Set up view
+      this._item = new PopupMenu.PopupBaseMenuItem({ activate: false })
+      this.menu.addMenuItem(this._item)
 
-    if (settings.enable_icon) {
-      this._icon = new St.Icon({ icon_name: 'night-light-symbolic', style_class: 'popup-menu-icon' })
-      this._item.actor.add(this._icon)
+      if (settings.enable_icon) {
+        this._icon = new St.Icon({ icon_name: 'night-light-symbolic', style_class: 'popup-menu-icon' })
+        this._item.actor.add(this._icon)
+      }
+
+      // Slider
+      this._slider = new Slider.Slider(0)
+      this._slider.connect('notify::value', this._sliderChanged.bind(this))
+      this._slider.actor.accessible_name = 'Temperature'
+      this._item.actor.add(this._slider.actor, { expand: true })
+
+      // Connect events
+      this._item.actor.connect('button-press-event',
+        (actor, event) => this._slider.startDragging(event))
+      this._item.actor.connect('key-press-event',
+        (actor, event) => this._slider.onKeyPressEvent(actor, event))
+
+      // Update initial view
+      this._updateView()
     }
 
-    // Slider
-    this._slider = new Slider.Slider(0)
-    this._slider.connect('notify::value', this._sliderChanged.bind(this))
-    this._slider.actor.accessible_name = 'Temperature'
-    this._item.actor.add(this._slider.actor, { expand: true })
-
-    // Connect events
-    this._item.actor.connect('button-press-event',
-      (actor, event) => this._slider.startDragging(event))
-    this._item.actor.connect('key-press-event',
-      (actor, event) => this._slider.onKeyPressEvent(actor, event))
-
-    // Update initial view
-    this._updateView()
-  }
-
-  _proxyHandler (proxy, error) {
-    if (error) {
-      log(error.message)
-      return
+    _proxyHandler (proxy, error) {
+      if (error) {
+        log(error.message)
+        return
+      }
+      this.proxy.connect('g-properties-changed', this.update_view.bind(this))
     }
-    this.proxy.connect('g-properties-changed', this.update_view.bind(this))
-  }
 
-  _sliderChanged (slider) {
-    const temperature = parseInt(this._slider.value * (this._max - this._min)) + this._min
-    this._schema.set_uint('night-light-temperature', temperature)
+    _sliderChanged (slider) {
+      const temperature = parseInt(this._slider.value * (this._max - this._min)) + this._min
+      this._schema.set_uint('night-light-temperature', temperature)
 
-    this._listeners.forEach(callback => {
-      callback(temperature, this._slider.value)
-    })
-  }
+      this._listeners.forEach(callback => {
+        callback(temperature, this._slider.value)
+      })
+    }
 
-  _onSliderChanged (callback) {
-    this._listeners.push(callback)
-  }
+    _onSliderChanged (callback) {
+      this._listeners.push(callback)
+    }
 
-  _updateView () {
-    // Update temperature view
-    const temperature = this._schema.get_uint('night-light-temperature')
-    const value = (temperature - this._min) / (this._max - this._min)
-    this._slider.value = value
-  }
+    _updateView () {
+      // Update temperature view
+      const temperature = this._schema.get_uint('night-light-temperature')
+      const value = (temperature - this._min) / (this._max - this._min)
+      this._slider.value = value
+    }
 
-  _scroll (event) {
-    this._slider.scroll(event)
-  }
-}
+    _scroll (event) {
+      this._slider.scroll(event)
+    }
+  })
 
 class NightLightSchedule {
   constructor (schema) {
