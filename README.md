@@ -1,3 +1,7 @@
+# migration notice
+
+This repository has moved to [Codeberg](https://codeberg.org/kiyui/gnome-shell-night-light-slider-extension).
+
 # gnome-night-light-slider-extension
 
 Manage GNOME's built-in night light temperature intensity from the aggregate menu!
